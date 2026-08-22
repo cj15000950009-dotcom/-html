@@ -1,0 +1,724 @@
+/* 全局样式 - 符合酒馆卡运行规范 */
+@import 'tailwindcss';
+
+/* 姓名框手书字体（用户提供：dist/汉仪尚巍手书W.ttf） */
+@font-face {
+  font-family: "HanYiShangWeiShouShuW";
+  src: url("../assets/fonts/HanYiShangWeiShouShuW.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+}
+
+/* 确保根元素有基本样式 - 符合 iframe 适配规范 */
+/* 设置最小宽高比作为保底，防止界面变成一条竖线 */
+#root {
+  width: 100%;
+  min-width: min(600px, 100vw); /* 窄屏时适应容器，避免内容挤出 */
+  min-height: 400px;
+  aspect-ratio: 16 / 9;
+  display: block;
+  box-sizing: border-box;
+}
+
+/*
+ * 顶层注入酒馆主窗口（罗天虎加载器 $.load 换 body）：
+ * 必须取消 16:9 + 固定 min-height，否则「仅 absolute 子节点」时包含块高度异常，
+ * 表现为整片主舞台不可见，只剩 fixed 导航栏。
+ */
+html.th-luotianhu-top,
+html.th-luotianhu-top body {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  min-height: 100vh !important;
+  height: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+html.th-luotianhu-top #root {
+  aspect-ratio: auto !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  height: 100vh !important;
+  max-height: none !important;
+  position: relative !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+/*
+ * 罗天虎加载器：全屏壳（fixed 铺满视口），把 #root 挂进壳里而不是塞进聊天楼层。
+ * 否则 React 只在窄条里挂载，fixed 导航贴在视口上能看见，中间只剩 slate-950 看起来像「蓝屏」。
+ */
+#th-luotianhu-fullscreen-root {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100dvh;
+  z-index: 2147483000;
+  background: #020617;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+#th-luotianhu-fullscreen-root #root {
+  aspect-ratio: auto !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+/* 嵌在 SillyTavern 消息 iframe 内：父容器往往只有 ~400px 宽，取消 600px 下限与固定比例，否则会横向滚动且显「极窄」 */
+html.th-embedded,
+html.th-embedded body,
+html.th-embedded #root {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  aspect-ratio: auto !important;
+  overflow-x: hidden;
+}
+
+html.th-embedded body {
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+body {
+  background-color: #020617;
+  overflow-x: auto;
+  overflow-y: auto;
+  color: white;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-width: min(600px, 100vw);
+  min-height: 400px;
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  min-width: min(600px, 100vw);
+  min-height: 400px;
+  box-sizing: border-box;
+}
+
+/* 确保所有元素都使用 box-sizing: border-box */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 核心棱角 Clip Paths */
+.clip-tactical-box {
+  clip-path: polygon(0 15px, 15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+}
+
+.clip-tactical-tab {
+  /* Flipped Vertically: Bottom-Left Cut */
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+}
+
+.clip-tactical-tab-right {
+  /* Bottom-Right Cut for Right Side Tabs */
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+}
+
+.clip-tactical-sm {
+  clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+.clip-nameplate {
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%);
+}
+
+/* 战术扫描线滤镜 - DISABLED/HIDDEN for clearer view */
+.scanline-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(16, 185, 129, 0.0);
+  z-index: 100;
+  pointer-events: none;
+  animation: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #10b981;
+}
+
+/* 对话框磨砂玻璃皮肤：滚动条采用半透明磨砂效果 */
+.dialogue-scrollbar-glass::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dialogue-scrollbar-glass::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.dialogue-scrollbar-glass::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  backdrop-filter: blur(8px);
+}
+
+.dialogue-scrollbar-glass::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* 对话框：隐藏滚动条（仍可滚动） */
+.dialogue-scrollbar-hidden {
+  scrollbar-width: none; /* Firefox */
+}
+.dialogue-scrollbar-hidden::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* 系统界面：自定义滚动条（纵向+横向） */
+.system-panel-scrollbar {
+  scrollbar-width: thin;
+}
+.system-panel-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.system-panel-scrollbar::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+.system-panel-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.9);
+  border-radius: 4px;
+}
+.system-panel-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(248, 250, 252, 0.9);
+}
+
+/* 事件表时间轴：横向滚动条明显可见 */
+.timeline-h-scrollbar::-webkit-scrollbar {
+  height: 10px;
+}
+.timeline-h-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+}
+.timeline-h-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.5);
+  border-radius: 5px;
+}
+.timeline-h-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+
+/* 事件表章节导航：横向滚动条明显可见 */
+.timeline-chapter-scrollbar::-webkit-scrollbar {
+  height: 8px;
+}
+.timeline-chapter-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+}
+.timeline-chapter-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.5);
+  border-radius: 4px;
+}
+.timeline-chapter-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.8);
+}
+
+/* 事件表时间轴：深色纹理背景（布料/暗纹纸张） */
+.timeline-texture-bg {
+  background-color: #1a1625;
+  background-image:
+    linear-gradient(135deg, rgba(88, 28, 135, 0.15) 0%, transparent 45%),
+    linear-gradient(225deg, rgba(127, 29, 29, 0.12) 0%, transparent 45%);
+  position: relative;
+}
+.timeline-texture-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+.timeline-texture-bg-day {
+  position: relative;
+  background-color: #2d2a3a;
+  background-image:
+    linear-gradient(135deg, rgba(88, 28, 135, 0.08) 0%, transparent 45%),
+    linear-gradient(225deg, rgba(127, 29, 29, 0.06) 0%, transparent 45%);
+}
+.timeline-texture-bg-day::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+}
+
+/* 响应式设计 - 仅针对明确需要收缩的面板，避免误伤主容器 */
+@media (max-width: 1024px) {
+  .responsive-panel {
+    max-width: calc(100% - 2rem) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .responsive-panel {
+    max-width: calc(100% - 1rem) !important;
+    min-width: auto !important;
+  }
+}
+
+/* 与 App 内 matchMedia 断点一致：窄视口下减轻 iOS 自动放大字号、避免横向被撑开 */
+@media (max-width: 768px), (max-height: 736px) {
+  html.th-embedded,
+  html.th-embedded body,
+  html.th-embedded #root,
+  html.th-luotianhu-top #root {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
+/* ========== 立绘入场/出场动画（CSS Animations，可在设置中切换） ========== */
+/* 入场：从右侧滑入 */
+.sprite-enter-slide-right {
+  animation: sprite-slide-in-right 0.5s ease-out forwards;
+}
+@keyframes sprite-slide-in-right {
+  from { transform: translateX(100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+/* 入场：从左侧滑入 */
+.sprite-enter-slide-left {
+  animation: sprite-slide-in-left 0.5s ease-out forwards;
+}
+@keyframes sprite-slide-in-left {
+  from { transform: translateX(-100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+/* 入场：从上方向下滑入 */
+.sprite-enter-slide-top {
+  animation: sprite-slide-in-top 0.5s ease-out forwards;
+}
+@keyframes sprite-slide-in-top {
+  from { transform: translateY(-80px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+/* 入场：淡入 */
+.sprite-enter-fade-in {
+  animation: sprite-fade-in 0.8s ease forwards;
+}
+@keyframes sprite-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* 入场：弹跳 */
+.sprite-enter-bounce {
+  animation: sprite-bounce-in 0.7s ease forwards;
+}
+@keyframes sprite-bounce-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+/* 入场：放大 */
+.sprite-enter-zoom-in {
+  animation: sprite-zoom-in 0.5s ease-out forwards;
+}
+@keyframes sprite-zoom-in {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+/* 入场：旋转淡入 */
+.sprite-enter-rotate-in {
+  animation: sprite-rotate-in 0.6s ease forwards;
+}
+@keyframes sprite-rotate-in {
+  from { transform: rotate(-8deg) scale(0.9); opacity: 0; }
+  to { transform: rotate(0) scale(1); opacity: 1; }
+}
+/* 入场：从下方向上滑入 */
+.sprite-enter-slide-bottom {
+  animation: sprite-slide-in-bottom 0.5s ease-out forwards;
+}
+@keyframes sprite-slide-in-bottom {
+  from { transform: translateY(80px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+/* 入场：翻转入场 */
+.sprite-enter-flip {
+  animation: sprite-flip-in 0.6s ease-out forwards;
+}
+@keyframes sprite-flip-in {
+  from { transform: perspective(400px) rotateY(-90deg); opacity: 0; }
+  to { transform: perspective(400px) rotateY(0); opacity: 1; }
+}
+/* 入场：摆动入场 */
+.sprite-enter-swing {
+  animation: sprite-swing-in 0.7s ease-out forwards;
+}
+@keyframes sprite-swing-in {
+  0% { transform: rotate(-12deg); opacity: 0; }
+  40% { transform: rotate(6deg); opacity: 0.9; }
+  70% { transform: rotate(-3deg); }
+  100% { transform: rotate(0); opacity: 1; }
+}
+/* 入场：弹性入场 */
+.sprite-enter-elastic {
+  animation: sprite-elastic-in 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+@keyframes sprite-elastic-in {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+/* 入场：从下放大升起 */
+.sprite-enter-rise-up {
+  animation: sprite-rise-up 0.6s ease-out forwards;
+}
+@keyframes sprite-rise-up {
+  from { transform: translateY(60px) scale(0.85); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* 出场：向右侧滑出 */
+.sprite-exit-slide-right {
+  animation: sprite-slide-out-right 0.5s ease forwards;
+}
+@keyframes sprite-slide-out-right {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100px); opacity: 0; }
+}
+/* 出场：向左侧滑出 */
+.sprite-exit-slide-left {
+  animation: sprite-slide-out-left 0.5s ease forwards;
+}
+@keyframes sprite-slide-out-left {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100px); opacity: 0; }
+}
+/* 出场：向上方滑出 */
+.sprite-exit-slide-top {
+  animation: sprite-slide-out-top 0.5s ease forwards;
+}
+@keyframes sprite-slide-out-top {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-80px); opacity: 0; }
+}
+/* 出场：淡出 */
+.sprite-exit-fade-out {
+  animation: sprite-fade-out 0.8s ease forwards;
+}
+@keyframes sprite-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+/* 出场：缩小消失 */
+.sprite-exit-zoom-out {
+  animation: sprite-zoom-out 0.5s ease forwards;
+}
+@keyframes sprite-zoom-out {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0.3); opacity: 0; }
+}
+/* 出场：下沉淡出 */
+.sprite-exit-sink {
+  animation: sprite-sink-out 0.6s ease forwards;
+}
+@keyframes sprite-sink-out {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(60px); opacity: 0; }
+}
+/* 出场：向下滑出 */
+.sprite-exit-slide-bottom {
+  animation: sprite-slide-out-bottom 0.5s ease forwards;
+}
+@keyframes sprite-slide-out-bottom {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(80px); opacity: 0; }
+}
+/* 出场：翻转离场 */
+.sprite-exit-flip {
+  animation: sprite-flip-out 0.5s ease forwards;
+}
+@keyframes sprite-flip-out {
+  from { transform: perspective(400px) rotateY(0); opacity: 1; }
+  to { transform: perspective(400px) rotateY(90deg); opacity: 0; }
+}
+/* 出场：摆动离场 */
+.sprite-exit-swing {
+  animation: sprite-swing-out 0.5s ease-in forwards;
+}
+@keyframes sprite-swing-out {
+  from { transform: rotate(0); opacity: 1; }
+  to { transform: rotate(15deg); opacity: 0; }
+}
+/* 出场：上升淡出 */
+.sprite-exit-rise-up {
+  animation: sprite-rise-out 0.5s ease forwards;
+}
+@keyframes sprite-rise-out {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-60px); opacity: 0; }
+}
+
+/* 不再对 fixed/absolute 全局设 max-width: 100vw，避免在 iframe 或窄容器内被压成一条线 */
+/* ink-jianghu 对话框（按图2复刻） */
+.ink-jianghu-dialogue-surface {
+  background: transparent;
+}
+
+.ink-jianghu-dialogue-border {
+  position: relative;
+  border-width: 0 !important;
+  box-shadow: none;
+  background: transparent !important;
+}
+
+.ink-jianghu-single-frame {
+  position: absolute;
+  inset: 0 auto auto 50%;
+  width: min(86vw, 980px);
+  height: 236px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  opacity: 1;
+}
+
+.ink-jianghu-left-decor {
+  position: absolute;
+  /* 像素锚点：以对话框左边缘为基准，只让挂件轻微压住边框 */
+  left: calc(50% - min(43vw, 490px) - 87px);
+  /* 对齐对话框本体(236px)垂直中心，避免受底栏高度影响 */
+  top: 68px;
+  width: 198px;
+  height: 198px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  z-index: 14;
+}
+
+.ink-jianghu-name-vertical {
+  position: absolute;
+  /* 贴在左侧水墨元素(91)的右半边上方 */
+  left: calc(50% - min(43vw, 490px) + 24px);
+  top: 12px;
+  height: 170px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  /* font-family 由 DialogueBox 内联按「姓名框字体」设置 */
+  font-weight: 400;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 16px rgba(0, 0, 0, 0.5);
+  z-index: 16;
+  pointer-events: none;
+}
+
+.ink-jianghu-back-button {
+  position: absolute;
+  left: calc(50% - min(43vw, 490px) + 42px);
+  bottom: 39px;
+  width: 57px;
+  height: 57px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 18;
+}
+
+.ink-jianghu-back-button-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.ink-jianghu-back-button.is-disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.ink-jianghu-content-clip {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(86vw, 980px);
+  height: 236px;
+  transform: translateX(-50%);
+  /* 与 PNG 框留白对齐：略增页边距，避免正文贴边（可由设置 --framed-pad-* 覆盖） */
+  padding: var(--framed-pad-top, 50px) var(--framed-pad-right, 88px) var(--framed-pad-bottom, 44px) var(--framed-pad-left, 122px);
+  box-sizing: border-box;
+  overflow: hidden;
+  pointer-events: auto;
+  z-index: 12;
+}
+
+.ink-jianghu-content-scroll {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.ink-jianghu-dialogue-prose {
+  line-height: 1.95;
+  letter-spacing: 0.045em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.68);
+}
+
+.ink-jianghu-bottom-bar {
+  bottom: 8px;
+  padding-top: 0;
+  margin: 0 auto;
+  width: min(86vw, 980px);
+  padding-right: 14px;
+  z-index: 15;
+}
+
+.ink-jianghu-bottom-bar .control-button {
+  background: rgba(10, 10, 10, 0.58);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* 奇幻典雅：布局与水墨框一致，配色与底栏为金/宣纸调（仅 theme=fantasy-elegant 使用） */
+.fantasy-elegant-dialogue-border {
+  position: relative;
+  border-width: 0 !important;
+  box-shadow: none;
+  background: transparent !important;
+}
+
+.fantasy-elegant-single-frame {
+  position: absolute;
+  inset: 0 auto auto 50%;
+  width: min(86vw, 980px);
+  height: 236px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  opacity: 1;
+}
+
+.fantasy-elegant-name-vertical {
+  position: absolute;
+  left: calc(50% - min(43vw, 490px) + 24px);
+  top: 12px;
+  height: 170px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-weight: 600;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 1px;
+  color: #b8860b;
+  text-shadow:
+    0 0 8px rgba(255, 248, 220, 0.9),
+    0 2px 4px rgba(120, 80, 20, 0.55);
+  z-index: 16;
+  pointer-events: none;
+}
+
+.fantasy-elegant-back-button {
+  position: absolute;
+  left: calc(50% - min(43vw, 490px) + 42px);
+  bottom: 39px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 18;
+}
+
+.fantasy-elegant-back-button-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.fantasy-elegant-back-button.is-disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.fantasy-elegant-content-clip {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(86vw, 980px);
+  height: 236px;
+  transform: translateX(-50%);
+  padding: var(--framed-pad-top, 50px) var(--framed-pad-right, 88px) var(--framed-pad-bottom, 44px) var(--framed-pad-left, 122px);
+  box-sizing: border-box;
+  overflow: hidden;
+  pointer-events: auto;
+  z-index: 12;
+}
+
+.fantasy-elegant-bottom-bar {
+  bottom: 8px;
+  padding-top: 0;
+  margin: 0 auto;
+  width: min(86vw, 980px);
+  padding-right: 14px;
+  z-index: 15;
+}
+
+.fantasy-elegant-bottom-bar .control-button {
+  background: rgba(90, 60, 20, 0.45);
+  border-color: rgba(184, 134, 11, 0.55);
+  color: #fff8e7;
+}
